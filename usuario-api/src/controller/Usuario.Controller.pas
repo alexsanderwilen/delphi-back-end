@@ -14,7 +14,7 @@ uses
   Usuario.Service,
   Usuario.Model,
   Usuario.DTO,
-  uJWT.Middleware;
+  uJWT.CurrentUser;
 
 procedure GetUsuarios(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
@@ -22,15 +22,7 @@ var
   Arr: TJSONArray;
   Obj: TJSONObject;
   Usuario: TUsuario;
-  UserId: string;
-  Login: string;
-  Nome: string;
 begin
-  // valida token e extrai dados do usuário autenticado
-  UserId := GetUserIdFromRequest(Req);
-  Login := GetLoginFromRequest(Req);
-  Nome := GetNomeFromRequest(Req);
-
   Lista := TUsuarioService.Listar;
   try
     Arr := TJSONArray.Create;
@@ -51,11 +43,11 @@ begin
         Obj.AddPair('success', TJSONBool.Create(True));
 
         Obj.AddPair(
-          'auth',
+          'user',
           TJSONObject.Create
-            .AddPair('user_id', UserId)
-            .AddPair('login', Login)
-            .AddPair('nome', Nome)
+            .AddPair('id', CurrentUserId(Req))
+            .AddPair('login', CurrentLogin(Req))
+            .AddPair('nome', CurrentNome(Req))
         );
 
         Obj.AddPair('data', Arr);
@@ -82,15 +74,7 @@ var
   DTO: TUsuarioCreateDTO;
   IdGerado: Int64;
   Resp: TJSONObject;
-  UserId: string;
-  Login: string;
-  Nome: string;
 begin
-  // valida token e extrai dados do usuário autenticado
-  UserId := GetUserIdFromRequest(Req);
-  Login := GetLoginFromRequest(Req);
-  Nome := GetNomeFromRequest(Req);
-
   Body := Req.Body<TJSONObject>;
   if not Assigned(Body) then
     raise Exception.Create('Body JSON não enviado ou inválido.');
@@ -109,14 +93,6 @@ begin
       Resp.AddPair('success', TJSONBool.Create(True));
       Resp.AddPair('id', TJSONNumber.Create(IdGerado));
       Resp.AddPair('message', 'Usuário criado com sucesso.');
-
-      Resp.AddPair(
-        'auth',
-        TJSONObject.Create
-          .AddPair('user_id', UserId)
-          .AddPair('login', Login)
-          .AddPair('nome', Nome)
-      );
 
       Res
         .ContentType('application/json')

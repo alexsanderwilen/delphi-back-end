@@ -25,7 +25,8 @@ uses
   Auth.Controller in 'src\controller\Auth.Controller.pas',
   uJWT.Middleware in '..\shared\auth\uJWT.Middleware.pas',
   uApp.Exception in '..\shared\response\uApp.Exception.pas',
-  uException.Handler in '..\shared\middleware\uException.Handler.pas';
+  uException.Handler in '..\shared\middleware\uException.Handler.pas',
+  uJWT.CurrentUser in '..\shared\auth\uJWT.CurrentUser.pas';
 
 begin
    try
