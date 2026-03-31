@@ -15,7 +15,18 @@ uses
   Usuario.Model,
   Usuario.DTO,
   uJWT.CurrentUser,
-  uResponse.Helper;
+  uResponse.Helper,
+  uApp.Exception;
+
+procedure EnsureAdmin(const Req: THorseRequest);
+begin
+  // valida token
+  CurrentUserId(Req);
+
+  // valida role
+  if not SameText(CurrentUserRole(Req), 'admin') then
+    raise EAppException.Create('Acesso negado', 403);
+end;
 
 procedure GetUsuarios(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
@@ -24,36 +35,41 @@ var
   Obj: TJSONObject;
   Usuario: TUsuario;
   UserObj: TJSONObject;
+  DataObj: TJSONObject;
 begin
+  EnsureAdmin(Req);
+
   Lista := TUsuarioService.Listar;
   try
     Arr := TJSONArray.Create;
+    try
+      for Usuario in Lista do
+      begin
+        Obj := TJSONObject.Create;
+        Obj.AddPair('id', TJSONNumber.Create(Usuario.Id));
+        Obj.AddPair('login', Usuario.Login);
+        Obj.AddPair('nome', Usuario.Nome);
+        Obj.AddPair('email', Usuario.Email);
+        Obj.AddPair('ativo', Usuario.Ativo);
+        Arr.AddElement(Obj);
+      end;
 
-    for Usuario in Lista do
-    begin
-      Obj := TJSONObject.Create;
-      Obj.AddPair('id', TJSONNumber.Create(Usuario.Id));
-      Obj.AddPair('login', Usuario.Login);
-      Obj.AddPair('nome', Usuario.Nome);
-      Obj.AddPair('email', Usuario.Email);
-      Obj.AddPair('ativo', Usuario.Ativo);
-      Arr.AddElement(Obj);
+      UserObj := TJSONObject.Create;
+      UserObj
+        .AddPair('id', CurrentUserId(Req))
+        .AddPair('login', CurrentLogin(Req))
+        .AddPair('nome', CurrentNome(Req))
+        .AddPair('role', CurrentUserRole(Req));
+
+      DataObj := TJSONObject.Create;
+      DataObj.AddPair('user', UserObj);
+      DataObj.AddPair('usuarios', Arr);
+
+      Success(Res, 'Usuários listados com sucesso', DataObj);
+    except
+      Arr.Free;
+      raise;
     end;
-
-    // Dados do usuário logado
-    UserObj := TJSONObject.Create;
-    UserObj
-      .AddPair('id', CurrentUserId(Req))
-      .AddPair('login', CurrentLogin(Req))
-      .AddPair('nome', CurrentNome(Req));
-
-    // Payload final
-    Obj := TJSONObject.Create;
-    Obj.AddPair('user', UserObj);
-    Obj.AddPair('usuarios', Arr);
-
-    Success(Res, 'Usuários listados com sucesso', Obj);
-
   finally
     Lista.Free;
   end;
@@ -66,10 +82,11 @@ var
   IdGerado: Int64;
   DataObj: TJSONObject;
 begin
-  Body := Req.Body<TJSONObject>;
+  EnsureAdmin(Req);
 
+  Body := Req.Body<TJSONObject>;
   if not Assigned(Body) then
-    raise Exception.Create('Body JSON não enviado ou inválido.');
+    raise EAppException.Create('Body JSON não enviado ou inválido.', 400);
 
   DTO := TUsuarioCreateDTO.Create;
   try
@@ -84,7 +101,6 @@ begin
     DataObj.AddPair('id', TJSONNumber.Create(IdGerado));
 
     Created(Res, 'Usuário criado com sucesso', DataObj);
-
   finally
     DTO.Free;
   end;

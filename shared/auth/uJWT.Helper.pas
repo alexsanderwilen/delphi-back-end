@@ -7,7 +7,7 @@ type
   public
     class function GenerateToken(
       const AUserId: Int64;
-      const ALogin, ANome: string
+      const ALogin, ANome, ARole: string
     ): string; static;
   end;
 
@@ -25,7 +25,7 @@ uses
 
 class function TJWTToken.GenerateToken(
   const AUserId: Int64;
-  const ALogin, ANome: string
+  const ALogin, ANome, ARole: string
 ): string;
 var
   LToken: TJWT;
@@ -39,6 +39,7 @@ begin
 
     LToken.Claims.SetClaimOfType<string>('login', ALogin);
     LToken.Claims.SetClaimOfType<string>('nome', ANome);
+    LToken.Claims.SetClaimOfType<string>('role', ARole);
 
     Result := TJOSE.SHA256CompactToken(TJWTConfig.SecretKey, LToken);
   finally

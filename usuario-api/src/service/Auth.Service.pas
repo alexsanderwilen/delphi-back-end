@@ -47,7 +47,12 @@ begin
 
     TAuthRepository.AtualizarUltimoLogin(User.Id, AIp);
 
-    Result := TJWTToken.GenerateToken(User.Id, User.Login, User.Nome);
+    Result := TJWTToken.GenerateToken(
+      User.Id,
+      User.Login,
+      User.Nome,
+      User.Role
+    );
   finally
     User.Free;
   end;

@@ -11,6 +11,7 @@ type
     FSenhaHash: string;
     FAtivo: string;
     FBloqueado: string;
+    FRole: string;
   public
     property Id: Int64 read FId write FId;
     property Login: string read FLogin write FLogin;
@@ -18,6 +19,7 @@ type
     property SenhaHash: string read FSenhaHash write FSenhaHash;
     property Ativo: string read FAtivo write FAtivo;
     property Bloqueado: string read FBloqueado write FBloqueado;
+    property Role: string read FRole write FRole;
   end;
 
 implementation

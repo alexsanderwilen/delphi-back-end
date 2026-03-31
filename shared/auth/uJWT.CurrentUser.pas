@@ -8,6 +8,7 @@ uses
 function CurrentUserId(const Req: THorseRequest): string;
 function CurrentLogin(const Req: THorseRequest): string;
 function CurrentNome(const Req: THorseRequest): string;
+function CurrentUserRole(const Req: THorseRequest): string; // NOVO
 
 implementation
 
@@ -79,6 +80,18 @@ begin
   JWT := Decode(Req);
   try
     Result := JWT.Claims.JSON.GetValue<string>('nome', '');
+  finally
+    JWT.Free;
+  end;
+end;
+
+function CurrentUserRole(const Req: THorseRequest): string;
+var
+  JWT: TJWT;
+begin
+  JWT := Decode(Req);
+  try
+    Result := JWT.Claims.JSON.GetValue<string>('role', '');
   finally
     JWT.Free;
   end;
