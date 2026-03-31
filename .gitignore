@@ -1,0 +1,105 @@
+############################
+# Delphi / RAD Studio
+############################
+
+# Compilados
+*.dcu
+*.exe
+*.dll
+*.bpl
+*.dcp
+*.so
+*.apk
+
+# Debug / mapa
+*.map
+*.tds
+*.rsm
+
+# Recursos gerados
+*.res
+*.identcache
+
+# Backup / temporários
+*.bak
+*.~*
+*.tmp
+*.log
+
+# Histórico IDE
+__history/
+__recovery/
+
+# Arquivos locais da IDE
+*.local
+*.dsk
+*.stat
+
+############################
+# Pastas de build
+############################
+
+Win32/
+Win64/
+Debug/
+Release/
+Bpl/
+Dcp/
+
+############################
+# BOSS (dependências)
+############################
+
+# Pode ignorar build das libs
+modules/*/Win32/
+modules/*/Win64/
+
+# NÃO ignore isso (importante manter versionado)
+!boss.json
+!boss-lock.json
+
+############################
+# Logs
+############################
+
+logs/
+*.log
+
+############################
+# Sistema / OS
+############################
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mac (se alguém usar)
+.DS_Store
+
+############################
+# Banco / dumps (opcional)
+############################
+
+# Se tiver dump grande, ignore
+*.bak
+*.sql~
+*.dump
+
+############################
+# Testes / cache
+############################
+
+coverage/
+*.cache
+
+############################
+# Node / scripts (se usar futuramente)
+############################
+
+node_modules/
+
+############################
+# IDE configs opcionais
+############################
+
+*.proj.local
