@@ -20,10 +20,8 @@ uses
 
 procedure EnsureAdmin(const Req: THorseRequest);
 begin
-  // valida token
   CurrentUserId(Req);
 
-  // valida role
   if not SameText(CurrentUserRole(Req), 'admin') then
     raise EAppException.Create('Acesso negado', 403);
 end;
@@ -108,8 +106,8 @@ end;
 
 procedure Registry;
 begin
-  THorse.Get('/usuarios', GetUsuarios);
-  THorse.Post('/usuarios', PostUsuario);
+  THorse.Get('/api/v1/usuarios', GetUsuarios);
+  THorse.Post('/api/v1/usuarios', PostUsuario);
 end;
 
 end.

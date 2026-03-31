@@ -62,7 +62,7 @@ end;
 
 procedure Registry;
 begin
-  THorse.Post('/auth/login', PostLogin);
+  THorse.Post('/api/v1/auth/login', PostLogin);
 end;
 
 end.

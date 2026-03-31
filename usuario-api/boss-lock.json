@@ -18,6 +18,14 @@
 			"failed": false,
 			"changed": false
 		},
+		"github.com/hashload/horse-cors": {
+			"name": "horse-cors",
+			"version": "1.0.7",
+			"hash": "d15fed3280e380f2bc6918da71772b7a",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		},
 		"github.com/hashload/horse-jwt": {
 			"name": "horse-jwt",
 			"version": "2.0.18",
@@ -48,7 +56,7 @@
 			"hash": "30168430005de681e90bef999de6804a",
 			"artifacts": {},
 			"failed": false,
-			"changed": true
+			"changed": false
 		},
 		"https://github.com/viniciussanchez/bcrypt": {
 			"name": "bcrypt",
