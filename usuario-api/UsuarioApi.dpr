@@ -8,6 +8,7 @@ uses
   System.SysUtils,
   Horse,
   Horse.Jhonson,
+  Horse.CORS,
   Horse.JWT,
   uConnection.Config in '..\shared\connection\uConnection.Config.pas',
   uConnection.Factory in '..\shared\connection\uConnection.Factory.pas',
@@ -32,6 +33,7 @@ uses
 begin
    try
     THorse.Use(Jhonson);
+    THorse.Use(CORS);
     THorse.Use(ExceptionMiddleware);
 
     TConnectionFactory.Configure;
