@@ -28,15 +28,29 @@ uses
   uApp.Exception in '..\shared\response\uApp.Exception.pas',
   uException.Handler in '..\shared\middleware\uException.Handler.pas',
   uJWT.CurrentUser in '..\shared\auth\uJWT.CurrentUser.pas',
-  uResponse.Helper in '..\shared\response\uResponse.Helper.pas';
+  uResponse.Helper in '..\shared\response\uResponse.Helper.pas',
+  Storage.MinIO in '..\shared\storage\Storage.MinIO.pas',
+  Storage.MinIOInterface in '..\shared\storage\Storage.MinIOInterface.pas',
+  uEnv.Helper in '..\shared\utils\uEnv.Helper.pas';
 
 begin
-   try
+  try
     THorse.Use(Jhonson);
     THorse.Use(CORS);
     THorse.Use(ExceptionMiddleware);
 
     TConnectionFactory.Configure;
+
+    TEnvHelper.LoadFromFile('.env');
+
+    TMinIOStorage.Configure(
+      TEnvHelper.RequireValue('MINIO_ENDPOINT'),
+      TEnvHelper.RequireValue('MINIO_ACCESS_KEY'),
+      TEnvHelper.RequireValue('MINIO_SECRET_KEY'),
+      TEnvHelper.RequireValue('MINIO_BUCKET'),
+      TEnvHelper.GetValue('MINIO_REGION', 'eu-south'),
+      TEnvHelper.GetBool('MINIO_USE_SSL', True)
+    );
 
     Auth.Controller.Registry;
     Usuario.Controller.Registry;
@@ -44,11 +58,10 @@ begin
     THorse.Listen(9000,
       procedure
       begin
-        Writeln('Servidor rodando em http://localhost:9000');
+       Writeln('Servidor NOVO rodando em http://localhost:9000');
       end);
 
   except
-
     on E: Exception do
       Writeln(E.ClassName + ': ' + E.Message);
   end;

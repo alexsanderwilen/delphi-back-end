@@ -126,6 +126,9 @@
         <DCCReference Include="..\shared\middleware\uException.Handler.pas"/>
         <DCCReference Include="..\shared\auth\uJWT.CurrentUser.pas"/>
         <DCCReference Include="..\shared\response\uResponse.Helper.pas"/>
+        <DCCReference Include="..\shared\storage\Storage.MinIO.pas"/>
+        <DCCReference Include="..\shared\storage\Storage.MinIOInterface.pas"/>
+        <DCCReference Include="..\shared\utils\uEnv.Helper.pas"/>
         <None Include="..\shared\auth\uJWT.Config.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
