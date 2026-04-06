@@ -51,7 +51,8 @@ begin
       User.Id,
       User.Login,
       User.Nome,
-      User.Role
+      User.Role,
+      User.FotoUrl
     );
   finally
     User.Free;

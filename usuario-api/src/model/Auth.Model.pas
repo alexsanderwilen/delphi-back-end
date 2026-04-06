@@ -12,6 +12,7 @@ type
     FAtivo: string;
     FBloqueado: string;
     FRole: string;
+    FFotoUrl: string;
   public
     property Id: Int64 read FId write FId;
     property Login: string read FLogin write FLogin;
@@ -20,6 +21,7 @@ type
     property Ativo: string read FAtivo write FAtivo;
     property Bloqueado: string read FBloqueado write FBloqueado;
     property Role: string read FRole write FRole;
+    property FotoUrl: string read FFotoUrl write FFotoUrl;
   end;
 
 implementation

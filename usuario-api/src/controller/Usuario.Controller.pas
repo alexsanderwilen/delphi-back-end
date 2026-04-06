@@ -36,17 +36,48 @@ begin
   Result.AddPair('nome', AUsuario.Nome);
   Result.AddPair('email', AUsuario.Email);
   Result.AddPair('ativo', AUsuario.Ativo);
+  Result.AddPair('fotoPath', AUsuario.FotoPath);
   Result.AddPair('fotoUrl', AUsuario.FotoUrl);
 end;
 
 function CurrentUserToJson(const Req: THorseRequest): TJSONObject;
+var
+  LUsuario: TUsuario;
+  LUserIdStr: string;
+  LUserId: Int64;
 begin
-  Result := TJSONObject.Create;
-  Result
-    .AddPair('id', TJSONNumber.Create(CurrentUserId(Req)))
-    .AddPair('login', CurrentLogin(Req))
-    .AddPair('nome', CurrentNome(Req))
-    .AddPair('role', CurrentUserRole(Req));
+  LUserIdStr := CurrentUserId(Req);
+
+  if not TryStrToInt64(LUserIdStr, LUserId) then
+    raise EAppException.Create('ID do usuário logado inválido.', 400);
+
+  LUsuario := TUsuarioService.BuscarPorId(LUserId);
+  try
+    Result := TJSONObject.Create;
+
+    Result
+      .AddPair('id', TJSONNumber.Create(LUserId))
+      .AddPair('login', CurrentLogin(Req))
+      .AddPair('nome', CurrentNome(Req))
+      .AddPair('role', CurrentUserRole(Req));
+
+    if Assigned(LUsuario) then
+    begin
+      Result.AddPair('email', LUsuario.Email);
+      Result.AddPair('ativo', LUsuario.Ativo);
+      Result.AddPair('fotoPath', LUsuario.FotoPath);
+      Result.AddPair('fotoUrl', LUsuario.FotoUrl);
+    end
+    else
+    begin
+      Result.AddPair('email', '');
+      Result.AddPair('ativo', '');
+      Result.AddPair('fotoPath', '');
+      Result.AddPair('fotoUrl', '');
+    end;
+  finally
+    LUsuario.Free;
+  end;
 end;
 
 procedure GetUsuarios(Req: THorseRequest; Res: THorseResponse; Next: TProc);

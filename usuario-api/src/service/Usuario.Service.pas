@@ -95,7 +95,7 @@ begin
   if LFotoPath.IsEmpty then
     Exit('');
 
-  Result := TMinIOStorage.GeneratePresignedGetUrl(LFotoPath, 300);
+  Result := TMinIOStorage.GeneratePresignedGetUrl(LFotoPath, 3600);
 end;
 
 class procedure TUsuarioService.PrepararUsuario(AUsuario: TUsuario);
@@ -209,7 +209,7 @@ begin
 
   TUsuarioRepository.AtualizarFoto(AUsuarioId, LObjectName);
 
-  Result := TMinIOStorage.GeneratePresignedGetUrl(LObjectName, 300);
+  Result := TMinIOStorage.GeneratePresignedGetUrl(LObjectName, 3600);
 end;
 
 end.

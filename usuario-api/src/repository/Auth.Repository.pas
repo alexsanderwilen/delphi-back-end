@@ -36,7 +36,7 @@ begin
     Qry := TConnectionFactory.NewQuery(Conn);
     try
       Qry.SQL.Text :=
-        'select id, login, nome, senha_hash, ativo, bloqueado, role ' +
+        'select id, login, nome, senha_hash, ativo, bloqueado, role, foto_url ' +
         'from usuario ' +
         'where login = :login';
 
@@ -53,6 +53,7 @@ begin
         Result.Ativo := Qry.FieldByName('ativo').AsString;
         Result.Bloqueado := Qry.FieldByName('bloqueado').AsString;
         Result.Role := Qry.FieldByName('role').AsString;
+        Result.FotoUrl := Qry.FieldByName('foto_url').AsString;
       end;
     finally
       Qry.Free;
