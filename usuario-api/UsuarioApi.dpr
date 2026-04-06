@@ -31,7 +31,9 @@ uses
   uResponse.Helper in '..\shared\response\uResponse.Helper.pas',
   Storage.MinIO in '..\shared\storage\Storage.MinIO.pas',
   Storage.MinIOInterface in '..\shared\storage\Storage.MinIOInterface.pas',
-  uEnv.Helper in '..\shared\utils\uEnv.Helper.pas';
+  uEnv.Helper in '..\shared\utils\uEnv.Helper.pas',
+  Usuario.Update.DTO in 'src\dto\Usuario.Update.DTO.pas',
+  Usuario.AlterarSenha.DTO in 'src\dto\Usuario.AlterarSenha.DTO.pas';
 
 begin
   try

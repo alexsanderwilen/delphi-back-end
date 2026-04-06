@@ -6,7 +6,9 @@ uses
   System.Classes,
   System.Generics.Collections,
   Usuario.Model,
-  Usuario.DTO;
+  Usuario.DTO,
+  Usuario.Update.DTO,
+  Usuario.AlterarSenha.DTO;
 
 type
   TUsuarioService = class
@@ -21,6 +23,8 @@ type
     class function BuscarPorId(const AID: Int64): TUsuario;
     class function BuscarPorEmail(const AEmail: string): TUsuario;
     class function Criar(const ADTO: TUsuarioCreateDTO): Int64;
+    class function Atualizar(const AID: Int64; const ADTO: TUsuarioUpdateDTO): Int64;
+    class function AlterarSenha(const AID: Int64; const ADTO: TUsuarioAlterarSenhaDTO): Int64;
     class function ExcluirPorId(const AID: Int64): Int64;
     class function UploadFoto(
       const AUsuarioId: Int64;
@@ -162,6 +166,62 @@ begin
   ADTO.Senha := Trim(ADTO.Senha);
 
   Result := TUsuarioRepository.Inserir(ADTO);
+end;
+
+class function TUsuarioService.Atualizar(const AID: Int64; const ADTO: TUsuarioUpdateDTO): Int64;
+var
+  LAtivo: string;
+begin
+  if AID <= 0 then
+    raise Exception.Create('ID inválido.');
+
+  if not Assigned(ADTO) then
+    raise Exception.Create('Dados do usuário não informados.');
+
+  if Trim(ADTO.Login).IsEmpty then
+    raise Exception.Create('Login é obrigatório.');
+
+  if Trim(ADTO.Nome).IsEmpty then
+    raise Exception.Create('Nome é obrigatório.');
+
+  ValidarEmail(ADTO.Email);
+
+  LAtivo := UpperCase(Trim(ADTO.Ativo));
+  if (LAtivo <> 'S') and (LAtivo <> 'N') then
+    raise Exception.Create('Campo ativo deve ser S ou N.');
+
+  ADTO.Login := Trim(ADTO.Login);
+  ADTO.Nome := Trim(ADTO.Nome);
+  ADTO.Email := LowerCase(Trim(ADTO.Email));
+  ADTO.Ativo := LAtivo;
+
+  Result := TUsuarioRepository.Atualizar(AID, ADTO);
+end;
+
+class function TUsuarioService.AlterarSenha(const AID: Int64; const ADTO: TUsuarioAlterarSenhaDTO): Int64;
+begin
+  if AID <= 0 then
+    raise Exception.Create('ID inválido.');
+
+  if not Assigned(ADTO) then
+    raise Exception.Create('Dados da senha não informados.');
+
+  if Trim(ADTO.Senha).IsEmpty then
+    raise Exception.Create('Senha é obrigatória.');
+
+  if Trim(ADTO.ConfirmarSenha).IsEmpty then
+    raise Exception.Create('Confirmação de senha é obrigatória.');
+
+  if Trim(ADTO.Senha) <> Trim(ADTO.ConfirmarSenha) then
+    raise Exception.Create('Senha e confirmação de senha não conferem.');
+
+  if Length(Trim(ADTO.Senha)) < 6 then
+    raise Exception.Create('A senha deve ter no mínimo 6 caracteres.');
+
+  ADTO.Senha := Trim(ADTO.Senha);
+  ADTO.ConfirmarSenha := Trim(ADTO.ConfirmarSenha);
+
+  Result := TUsuarioRepository.AtualizarSenha(AID, ADTO.Senha);
 end;
 
 class function TUsuarioService.ExcluirPorId(const AID: Int64): Int64;

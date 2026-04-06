@@ -8,7 +8,9 @@ uses
   FireDAC.Stan.Param,
   uPassword.Hash,
   Usuario.Model,
-  Usuario.DTO;
+  Usuario.DTO,
+  Usuario.Update.DTO,
+  Usuario.AlterarSenha.DTO;
 
 type
   TUsuarioRepository = class
@@ -17,6 +19,8 @@ type
     class function BuscarPorId(const AID: Int64): TUsuario;
     class function BuscarPorEmail(const AEmail: string): TUsuario;
     class function Inserir(const ADTO: TUsuarioCreateDTO): Int64;
+    class function Atualizar(const AID: Int64; const ADTO: TUsuarioUpdateDTO): Int64;
+    class function AtualizarSenha(const AID: Int64; const ANovaSenha: string): Int64;
     class function ExcluirPorId(const AID: Int64): Int64;
     class procedure AtualizarFoto(const AID: Int64; const AFotoPath: string);
   end;
@@ -185,6 +189,93 @@ begin
       Qry.ExecSQL;
 
       Result := Qry.ParamByName('id').AsLargeInt;
+    finally
+      Qry.Free;
+    end;
+  finally
+    Conn.Free;
+  end;
+end;
+
+class function TUsuarioRepository.Atualizar(const AID: Int64; const ADTO: TUsuarioUpdateDTO): Int64;
+var
+  Conn: TFDConnection;
+  Qry: TFDQuery;
+begin
+  Result := -1;
+
+  Conn := TConnectionFactory.NewConnection;
+  try
+    Qry := TConnectionFactory.NewQuery(Conn);
+    try
+      Qry.SQL.Text :=
+        'update usuario ' +
+        'set login = :pLogin, ' +
+        '    nome = :pNome, ' +
+        '    email = :pEmail, ' +
+        '    ativo = :pAtivo ' +
+        'where id = :pID';
+
+      Qry.ParamByName('pLogin').DataType := ftString;
+      Qry.ParamByName('pLogin').ParamType := ptInput;
+      Qry.ParamByName('pLogin').AsString := Trim(ADTO.Login);
+
+      Qry.ParamByName('pNome').DataType := ftString;
+      Qry.ParamByName('pNome').ParamType := ptInput;
+      Qry.ParamByName('pNome').AsString := Trim(ADTO.Nome);
+
+      Qry.ParamByName('pEmail').DataType := ftString;
+      Qry.ParamByName('pEmail').ParamType := ptInput;
+      Qry.ParamByName('pEmail').AsString := Trim(ADTO.Email);
+
+      Qry.ParamByName('pAtivo').DataType := ftString;
+      Qry.ParamByName('pAtivo').ParamType := ptInput;
+      Qry.ParamByName('pAtivo').AsString := Trim(ADTO.Ativo);
+
+      Qry.ParamByName('pID').DataType := ftLargeint;
+      Qry.ParamByName('pID').ParamType := ptInput;
+      Qry.ParamByName('pID').AsLargeInt := AID;
+
+      Qry.ExecSQL;
+
+      if Qry.RowsAffected > 0 then
+        Result := AID;
+    finally
+      Qry.Free;
+    end;
+  finally
+    Conn.Free;
+  end;
+end;
+
+class function TUsuarioRepository.AtualizarSenha(const AID: Int64; const ANovaSenha: string): Int64;
+var
+  Conn: TFDConnection;
+  Qry: TFDQuery;
+begin
+  Result := -1;
+
+  Conn := TConnectionFactory.NewConnection;
+  try
+    Qry := TConnectionFactory.NewQuery(Conn);
+    try
+      Qry.SQL.Text :=
+        'update usuario ' +
+        'set senha_hash = :pSenhaHash ' +
+        'where id = :pID';
+
+      Qry.ParamByName('pSenhaHash').DataType := ftString;
+      Qry.ParamByName('pSenhaHash').ParamType := ptInput;
+      Qry.ParamByName('pSenhaHash').AsString := TPasswordHash.Hash(ANovaSenha);
+
+      Qry.ParamByName('pID').DataType := ftLargeint;
+      Qry.ParamByName('pID').ParamType := ptInput;
+      Qry.ParamByName('pID').AsLargeInt := AID;
+
+      Qry.ExecSQL;
+
+      if Qry.RowsAffected > 0 then
+        Result := AID;
     finally
       Qry.Free;
     end;

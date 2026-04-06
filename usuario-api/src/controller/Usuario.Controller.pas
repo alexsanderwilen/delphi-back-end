@@ -16,6 +16,8 @@ uses
   Usuario.Service,
   Usuario.Model,
   Usuario.DTO,
+  Usuario.Update.DTO,
+  Usuario.AlterarSenha.DTO,
   uJWT.CurrentUser,
   uResponse.Helper,
   uApp.Exception;
@@ -218,6 +220,94 @@ begin
   end;
 end;
 
+procedure PutUsuario(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  Body: TJSONObject;
+  DTO: TUsuarioUpdateDTO;
+  LId: Int64;
+  LAtualizado: Int64;
+  DataObj: TJSONObject;
+begin
+  EnsureAdmin(Req);
+
+  if not TryStrToInt64(Req.Params['id'], LId) then
+    raise EAppException.Create('ID inválido.', 400);
+
+  Body := Req.Body<TJSONObject>;
+  if not Assigned(Body) then
+    raise EAppException.Create('Body JSON não enviado ou inválido.', 400);
+
+  DTO := TUsuarioUpdateDTO.Create;
+  try
+    DTO.Login := Body.GetValue<string>('login', '');
+    DTO.Nome := Body.GetValue<string>('nome', '');
+    DTO.Email := Body.GetValue<string>('email', '');
+    DTO.Ativo := Body.GetValue<string>('ativo', '');
+
+    LAtualizado := TUsuarioService.Atualizar(LId, DTO);
+
+    if LAtualizado <= 0 then
+    begin
+      Res.Status(404).Send<TJSONObject>(
+        TJSONObject.Create
+          .AddPair('success', TJSONBool.Create(False))
+          .AddPair('message', 'Usuário não encontrado.')
+      );
+      Exit;
+    end;
+
+    DataObj := TJSONObject.Create;
+    DataObj.AddPair('id', TJSONNumber.Create(LAtualizado));
+
+    Success(Res, 'Usuário atualizado com sucesso.', DataObj);
+  finally
+    DTO.Free;
+  end;
+end;
+
+procedure PutUsuarioSenha(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  Body: TJSONObject;
+  DTO: TUsuarioAlterarSenhaDTO;
+  LId: Int64;
+  LAtualizado: Int64;
+  DataObj: TJSONObject;
+begin
+  EnsureAdmin(Req);
+
+  if not TryStrToInt64(Req.Params['id'], LId) then
+    raise EAppException.Create('ID inválido.', 400);
+
+  Body := Req.Body<TJSONObject>;
+  if not Assigned(Body) then
+    raise EAppException.Create('Body JSON não enviado ou inválido.', 400);
+
+  DTO := TUsuarioAlterarSenhaDTO.Create;
+  try
+    DTO.Senha := Body.GetValue<string>('senha', '');
+    DTO.ConfirmarSenha := Body.GetValue<string>('confirmarSenha', '');
+
+    LAtualizado := TUsuarioService.AlterarSenha(LId, DTO);
+
+    if LAtualizado <= 0 then
+    begin
+      Res.Status(404).Send<TJSONObject>(
+        TJSONObject.Create
+          .AddPair('success', TJSONBool.Create(False))
+          .AddPair('message', 'Usuário não encontrado.')
+      );
+      Exit;
+    end;
+
+    DataObj := TJSONObject.Create;
+    DataObj.AddPair('id', TJSONNumber.Create(LAtualizado));
+
+    Success(Res, 'Senha do usuário alterada com sucesso.', DataObj);
+  finally
+    DTO.Free;
+  end;
+end;
+
 procedure PostUsuarioFoto(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   LId: Int64;
@@ -305,6 +395,8 @@ begin
   THorse.Get('/api/v1/usuarios/:id', GetUsuarioPorId);
   THorse.Get('/api/v1/usuarios/email/:email', GetUsuarioPorEmail);
   THorse.Post('/api/v1/usuarios', PostUsuario);
+  THorse.Put('/api/v1/usuarios/:id', PutUsuario);
+  THorse.Put('/api/v1/usuarios/:id/senha', PutUsuarioSenha);
   THorse.Post('/api/v1/usuarios/:id/foto', PostUsuarioFoto);
   THorse.Delete('/api/v1/usuarios/:id', ExcluirUsuarioPorId);
 end;
